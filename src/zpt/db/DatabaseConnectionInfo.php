@@ -16,6 +16,7 @@ namespace zpt\db;
 
 use \zpt\util\Map;
 use \InvalidArgumentException;
+use \PDO;
 
 /**
  * This class encapsulates the info needed to establish a database connection.
@@ -74,6 +75,11 @@ class DatabaseConnectionInfo
 		$this->dsnOpts = $opts['dsnOptions'];
 		$this->pdoOpts = $opts['pdoOptions'];
 		$this->pdoAttrs = $opts['pdoAttributes'];
+
+		// If not explicitely set, use exception for error reporting.
+		if (!isset($this->pdoAttrs[PDO::ATTR_ERRMODE])) {
+			$this->pdoAttrs[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
+		}
 	}
 
 	/**
@@ -82,6 +88,11 @@ class DatabaseConnectionInfo
 	 * @return string Database connection DSN
 	 */
 	public function getDsn() {
+		// Handle sqlite in memory database
+		if ($this->driver === 'sqlite' && $this->schema === ':memory:') {
+			return 'sqlite::memory:';
+		}
+		
 		$opts = [];
 		$opts['host'] = $this->host;
 
@@ -102,7 +113,7 @@ class DatabaseConnectionInfo
 	}
 
 	public function getPassword() {
-		return $this->password;
+		return $this->pw;
 	}
 
 	public function getHost() {

@@ -19,29 +19,29 @@ require_once __DIR__ . '/test-common.php';
 use \PHPUnit_Framework_TestCase as TestCase;
 
 /**
- * Tests for the DatabaseConnectionInfo object.
+ * Testsfor the DatabaseConnection object.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class DatabaseConnectionInfoTest extends TestCase
+class DatabaseConnectionTest extends TestCase
 {
 
-	public function testBasicConstruction() {
-		$connInfo = new DatabaseConnectionInfo([
+	public function testSqliteConnection() {
+		$conn = new DatabaseConnection([
 			'driver' => 'sqlite',
 			'schema' => ':memory:'
 		]);
 
-		$this->assertEquals('sqlite', $connInfo->getDriver());
-		$this->assertEquals(':memory:', $connInfo->getSchema());
-	}
+		$conn->exec('CREATE TABLE config ( key text, value text )');
+		$insert = $conn->prepare("INSERT INTO config (key, value) VALUES (:k, :v)");
+		$insert->execute([ 'k' => 'config1', 'v' => 'value1' ]);
 
-	public function testSqliteInMemoryDsn() {
-		$connInfo = new DatabaseConnectionInfo([
-			'driver' => 'sqlite',
-			'schema' => ':memory:'
-		]);
+		$sel = $conn->query('SELECT * FROM config');
+		$all = $sel->fetchAll();
+		$this->assertEquals(1, count($all));
 
-		$this->assertEquals('sqlite::memory:', $connInfo->getDsn());
+		$r = $all[0];
+		$this->assertEquals('config1', $r['key']);
+		$this->assertEquals('value1', $r['value']);
 	}
 }
