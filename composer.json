@@ -13,5 +13,10 @@
 		"psr-0": {
 			"zpt\\db": "src/"
 		}
+	},
+	"minimum-stability": "dev",
+	"require": {
+		"php": ">=5.4.0",
+		"zeptech/utility": "dev-master"
 	}
 }

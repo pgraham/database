@@ -1,2 +1,6 @@
 # Vim files
 *.un~
+
+# Composer
+vendor/
+composer.lock
