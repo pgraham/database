@@ -1,0 +1,17 @@
+{
+	"name": "zeptech/database",
+	"description": "Database abstraction layer",
+	"keywords": [ "database", "abstraction" ],
+	"license": "BSD",
+	"authors": [
+		{
+			"name": "Philip Graham",
+			"email": "philip@zeptech.ca"
+		}
+	],
+	"autoload": {
+		"psr-0": {
+			"zpt\\db": "src/"
+		}
+	}
+}
