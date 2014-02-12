@@ -10,8 +10,8 @@
 		}
 	],
 	"autoload": {
-		"psr-0": {
-			"zpt\\db": "src/"
+		"psr-4": {
+			"zpt\\db\\": "src/"
 		}
 	},
 	"minimum-stability": "dev",
