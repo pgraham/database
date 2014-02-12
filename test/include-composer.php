@@ -14,7 +14,7 @@
  */
 
 // Search for composer vendor directory and include autoloader.
-$dir =dirname(__DIR__);
+$dir = dirname(__DIR__);
 
 while(!file_exists($dir . DIRECTORY_SEPARATOR . 'vendor')) {
 	$dir = dirname($dir);
@@ -24,4 +24,4 @@ $composerAutoloaderPath = implode(DIRECTORY_SEPARATOR, [
 	'vendor',
 	'autoload.php'
 ]);
-require_once $composerAutoloaderPath;
+return require_once $composerAutoloaderPath;

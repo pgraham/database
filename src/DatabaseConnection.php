@@ -14,7 +14,9 @@
  */
 namespace zpt\db;
 
+use \zpt\db\exception\ExceptionAdapterFactory;
 use \InvalidArgumentException;
+use \PDOException;
 use \PDO;
 
 /**
@@ -23,7 +25,17 @@ use \PDO;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class DatabaseConnection extends PDO {
+class DatabaseConnection
+{
+
+	/** Underlying PDO connection. */
+	private $pdo;
+
+	/** Database driver adapter. */
+	private $adapter;
+
+	/** Exception adapter. */
+	private $exceptionAdapter;
 
 	/**
 	 * Create a new connection with with the given options.
@@ -31,8 +43,15 @@ class DatabaseConnection extends PDO {
 	 * @param array|DatabaseConnectionInfo $options
 	 *   Either a {@link DatabaseConnectionInfo} instance or an array of options
 	 *   to use to construct a DatabaseConnectionInfo instance.
+	 * @param ExceptionAdapterFactory $exceptionAdapterFactory
+	 *   ExceptionAdapterFactory to use to retrieve the DatabaseExceptionAdapter
+	 *   instance to use for the specified driver. If provided a cached adapter
+	 *   may be used.
 	 */
-	public function __construct($options) {
+	public function __construct(
+		$options,
+		ExceptionAdapterFactory $exceptionAdapterFactory = null
+	) {
 		if (is_array($options)) {
 			$options = new DatabaseConnectionInfo($options);
 		}
@@ -43,20 +62,40 @@ class DatabaseConnection extends PDO {
 			);
 		}
 
-		$dsn = $options->getDsn();
+		if ($exceptionAdapterFactory === null) {
+			$exceptionAdapterFactory = new ExceptionAdapterFactory();
+		}
 
-		parent::__construct(
-			$dsn,
-			$options->getUsername(),
-			$options->getPassword(),
-			$options->getPdoOptions()
+		$this->exceptionAdapter = $exceptionAdapterFactory->getAdapter(
+			$options->getDriver()
 		);
 
+		try {
+			$dsn = $options->getDsn();
+			$this->pdo = new PDO(
+				$dsn,
+				$options->getUsername(),
+				$options->getPassword(),
+				$options->getPdoOptions()
+			);
+		} catch (PDOException $e) {
+			throw $this->exceptionAdapter->adapt($e);
+		}
+
 		foreach ($options->getPdoAttributes() as $key => $value) {
-			$this->setAttribute($key, $value);
+			$this->pdo->setAttribute($key, $value);
 		}
 
 		$this->options = $options;
+	}
+
+	/**
+	 * Access the underlying PDO object.
+	 *
+	 * @return PDO
+	 */
+	public function getPdo() {
+		return $this->pdo;
 	}
 
 	/**
@@ -66,6 +105,22 @@ class DatabaseConnection extends PDO {
 	 */
 	public function getInfo() {
 		return $this->options;
+	}
+
+	/**
+	 * Executes the given SQL query and returns a QueryResult object containing
+	 * the results of the query.
+	 *
+	 * @return StatementResult
+	 * @throws zpt\db\exception\DatabaseException
+	 *   Wraps any encountered PDOExceptions.
+	 */
+	public function exec($statement) {
+		try {
+			return $this->pdo->exec($statement);
+		} catch (PDOException $e) {
+			throw $this->exceptionAdapter->adapt($e);
+		}
 	}
 
 	/**
@@ -81,7 +136,26 @@ class DatabaseConnection extends PDO {
 			$driverOpts = [];
 		}
 
-		$stmt = parent::prepare($statement, $driverOpts);
-		return new PreparedStatement($stmt);
+		try {
+			$stmt = $this->pdo->prepare($statement, $driverOpts);
+			return new PreparedStatement($stmt, $this->pdo, $this->exceptionAdapter);
+		} catch (PDOException $e) {
+			throw $this->exceptionAdapter->adapt($e);
+		}
+	}
+
+	/**
+	 * Issue a one-off SELECT statment.
+	 *
+	 * @param string $statement
+	 * @return QueryResult
+	 */
+	public function query($statement) {
+		try {
+			$stmt = $this->pdo->query($statement);
+			return new QueryResult($stmt, $this->pdo);
+		} catch (PDOException $e) {
+			throw $this->exceptionAdapter->adapt($e);
+		}
 	}
 }

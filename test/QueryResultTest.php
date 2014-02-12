@@ -12,5 +12,16 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  * =============================================================================
  */
+namespace zpt\db;
 
-$loader = require __DIR__ . '/include-composer.php';
+use PHPUnit_Framework_TestCase as TestCase;
+
+/**
+ * Test the QueryResult class.
+ *
+ * @author Philip Graham <philip@zeptech.ca>
+ */
+class QueryResultTest extends TestCase
+{
+
+}

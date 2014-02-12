@@ -1,7 +1,7 @@
 <?php
 /**
  * =============================================================================
- * Copyright (c) 2012, Philip Graham
+ * Copyright (c) 2014, Philip Graham
  * All rights reserved.
  *
  * This file is part of Reed and is licensed by the Copyright holder under
@@ -14,6 +14,7 @@
  */
 namespace zpt\db;
 
+use \PDOException;
 use \PDOStatement;
 use \PDO;
 
@@ -24,8 +25,11 @@ use \PDO;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class PreparedStatement extends PDOStatement {
+class PreparedStatement
+{
 
+	private $exAdapter;
+	private $pdo;
 	private $stmt;
 
 	/**
@@ -33,90 +37,32 @@ class PreparedStatement extends PDOStatement {
 	 * PDOExceptions.
 	 *
 	 * @param PDOStatment $statment
-	 * @param DatabaseExceptionAdapter $exceptionAdapter Driver specific 
-	 *        PDOException --> DatabaseException adapter.
+	 * @param PDO $pdo
+	 *   The PDO connection object on which the query is to be executed.
+	 * @param DatabaseExceptionAdapter $exceptionAdapter
+	 *   Driver specific PDOException --> DatabaseException adapter.
 	 */
-	public function __construct(PDOStatement $statement) {
+	public function __construct(
+		PDOStatement $statement,
+		PDO $pdo,
+		$exceptionAdapter
+	) {
 		$this->stmt = $statement;
-	}
-
-	/** */
-	public function bindColumn(
-		$column,
-		&$param,
-		$type = null,
-		$maxlen = null,
-		$driverData = null
-	) {
-
-		return $this->stmt->bindColumn(
-			$column,
-			$param,
-			$type,
-			$maxlen,
-			$driverData
-		);
-	}
-
-	/** */
-	public function bindParam(
-		$param,
-		&$var,
-		$dataType = null,
-		$length = null,
-		$driverOpts = null
-	) {
-
-		if ($dataType === null) {
-			$dataType = PDO::PARAM_STR;
-		}
-
-		return $this->stmt->bindParam(
-			$param,
-			$var,
-			$dataType,
-			$length,
-			$driverOpts
-		);
-
-	}
-
-	/** */
-	public function bindValue($param, $val, $dataType = null) {
-		if ($dataType === null) {
-			$dataType = PDO::PARAM_STR;
-		}
-
-		return $this->stmt->bindValue($param, $val, $dataType);
-	}
-
-	/** */
-	public function closeCursor() {
-		return $this->stmt->closeCursor();
-	}
-
-	/** */
-	public function columnCount() {
-		return $this->stmt->columnCount();
-	}
-
-	/** */
-	public function debugDumpParams() {
-		$this->stmt->debugDumpParams();
-	}
-
-	/** */
-	public function errorCode() {
-		return $this->stmt->errorCode();
-	}
-
-	/** */
-	public function errorInfo() {
-		return $this->stmt->errorInfo();
+		$this->pdo = $pdo;
+		$this->exAdapter = $exceptionAdapter;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Access the underlying PDOStatment object.
+	 *
+	 * @return PDOStatment
+	 */
+	public function getPdoStatement() {
+		return $this->stmt;
+	}
+
+	/**
+	 * Execute the prepared statment with the given parameter values.
 	 *
 	 * @throws DatabaseException
 	 */
@@ -125,88 +71,13 @@ class PreparedStatement extends PDOStatement {
 			$inputParams = [];
 		}
 
-		return $this->stmt->execute($inputParams);
-	}
+		try {
+			$this->stmt->execute($inputParams);
 
-	/** */
-	public function fetch(
-		$fetchStyle = null,
-		$cursorOrientation = null,
-		$cursorOffset = 0
-	) {
-		if ($fetchStyle === null) {
-			$fetchStyle = PDO::ATTR_DEFAULT_FETCH_MODE;
-		}
-		if ($cursorOrientation === null) {
-			$cursorOrientation = PDO::FETCH_ORI_NEXT;
-		}
-		return $this->stmt->fetch($fetchStyle, $cursorOrientation, $cursorOffset);
-	}
-
-	/** */
-	public function fetchAll(
-		$fetchStyle = null,
-		$fetchArgument = null,
-		$ctorArgs = []
-	) {
-
-		if ($fetchStyle === null) {
-			$fetchStyle = PDO::ATTR_DEFAULT_FETCH_MODE;
-		}
-
-		return $this->stmt->fetchAll($fetchStyle, $fetchArgument, $ctorArgs);
-	}
-
-	/** */
-	public function fetchColumn($columnNumber = 0) {
-		return $this->stmt->fetchColumn($columnNumber);
-	}
-
-	/** */
-	public function fetchObject($className = null, $ctorArgs = null) {
-		if ($ctorArgs === null) {
-			$ctorArgs = [];
-		}
-
-		return $this->stmt->fetchObject($className, $ctorArgs);
-	}
-
-	/** */
-	public function getAttribute($attribute) {
-		return $this->stmt->getAttribute($attribute);
-	}
-
-	/** */
-	public function getColumnMeta($column) {
-		return $this->stmt->getColumnMeta($column);
-	}
-
-	/** */
-	public function nextRowset() {
-		return $this->stmt->nextRowset();
-	}
-
-	/** */
-	public function rowCount() {
-		return $this->stmt->rowCount();
-	}
-
-	/** */
-	public function setAttribute($attribute, $value) {
-		return $this->stmt->setAttribute($attribute, $value);
-	}
-
-	/** */
-	public function setFetchMode($mode, $modeArg = null, $ctorArgs = []) {
-		if ($mode == PDO::FETCH_COLUMN) {
-			return $this->stmt->setFetchMode($mode, $modeArg);
-		} else if ($mode == PDO::FETCH_CLASS) {
-			return $this->stmt->setFetchMode($mode, $modeArg, $ctorArgs);
-		} else if ($mode === PDO::FETCH_INTO) {
-			return $this->stmt->setFetchMode($mode, $modeArg);
-		} else {
-			return $this->stmt->setFetchMode($mode);
+			return new QueryResult($this->stmt, $this->pdo);
+			return $this->stmt->execute($inputParams);
+		} catch (PDOException $e) {
+			throw $this->exAdapter->adapt($e);
 		}
 	}
-
 }
