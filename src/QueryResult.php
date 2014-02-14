@@ -47,7 +47,7 @@ class QueryResult implements Iterator
 			// so grab the its next row.
 			$row = $this->stmt->fetch();
 
-			if ($row !== null) {
+			if ($row !== false) {
 				// The returned row is cached so that this object, unlike a PDOStatment
 				// object can be iterated more than once.
 				$this->cache[] = $row;
@@ -112,6 +112,6 @@ class QueryResult implements Iterator
 	}
 
 	public function valid() {
-		return $this->nextRow !== null;
+		return $this->nextRow !== false;
 	}
 }

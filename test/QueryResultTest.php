@@ -14,6 +14,8 @@
  */
 namespace zpt\db;
 
+require_once __DIR__ . '/test-common.php';
+
 use PHPUnit_Framework_TestCase as TestCase;
 
 /**
@@ -23,5 +25,26 @@ use PHPUnit_Framework_TestCase as TestCase;
  */
 class QueryResultTest extends TestCase
 {
+
+	public function testIteration() {
+		$db = new DatabaseConnection([
+			'driver' => 'sqlite',
+			'schema' => ':memory:'
+		]);
+
+		$db->exec('CREATE TABLE config ( key TEXT, val TEXT )');
+		$db->exec("INSERT INTO config VALUES ('k1', 'v1')");
+
+		$results = $db->query('SELECT * FROM config');
+
+		$iter = 0;
+		foreach ($results as $idx => $row) {
+			$this->assertEquals('k1', $row['key']);
+			$this->assertEquals('v1', $row['val']);
+
+			$iter++;
+		}
+		$this->assertEquals(1, $iter);
+	}
 
 }

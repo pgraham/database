@@ -13,4 +13,15 @@
  * =============================================================================
  */
 
+// Initialize Composer
+// -----------------------------------------------------------------------------
 $loader = require __DIR__ . '/include-composer.php';
+
+// Initialize Mockery
+// -----------------------------------------------------------------------------
+require 'Mockery/Loader.php';
+require 'Hamcrest/Hamcrest.php';
+$mockeryLoader = new Mockery\Loader();
+$loader->register();
+
+
