@@ -108,6 +108,20 @@ class DatabaseConnection
 	}
 
 	/**
+	 * @see PDO::beginTransaction()
+	 */
+	public function beginTransaction() {
+		return $this->pdo->beginTransaction();
+	}
+
+	/**
+	 * @see PDO::commit()
+	 */
+	public function commit() {
+		return $this->pdo->commit();
+	}
+
+	/**
 	 * Executes the given SQL query and returns a QueryResult object containing
 	 * the results of the query.
 	 *
@@ -157,5 +171,12 @@ class DatabaseConnection
 		} catch (PDOException $e) {
 			throw $this->exceptionAdapter->adapt($e);
 		}
+	}
+
+	/**
+	 * @see PDO::rollback()
+	 */
+	public function rollback() {
+		return $this->pdo->rollback();
 	}
 }
