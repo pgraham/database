@@ -96,7 +96,7 @@ class DatabaseException extends RuntimeException
 	}
 
 	protected function buildMessage($stmt, $params) {
-		$msg =  "Exception occured executing statement:\n  $stmt";
+		$msg =  "Exception occured executing statement:\n  `$stmt`";
 
 		if ($params !== null) {
 			$msg .= "\n\n  Parameters: ";
