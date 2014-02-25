@@ -30,7 +30,7 @@ class QueryResult implements Iterator
 	private $insertId;
 	private $rowCount;
 
-	private $cache = [];
+	private $cache = null;
 
 	private $nextIdx;
 	private $nextRow;
@@ -50,16 +50,22 @@ class QueryResult implements Iterator
 			if ($row !== false) {
 				// The returned row is cached so that this object, unlike a PDOStatment
 				// object can be iterated more than once.
-				$this->cache[] = $row;
+				if (is_array($this->cache)) {
+					$this->cache[] = $row;
+				}
 			} else {
 				// The last result in this iteration has been encountered so the
 				// PDOStatement is no longer needed.
 				$this->stmt = null;
 			}
-		} else {
+		} elseif (is_array($this->cache)) {
 			// Grab the next row using the caches internal array pointer.
 			$row = current($this->cache);
 			next($cache);
+		} else {
+			throw new LogicException(
+				"Results can only be iterated once unless cache is enabled."
+			);
 		}
 
 		return $row;
@@ -88,6 +94,20 @@ class QueryResult implements Iterator
 		return $this->rowCount;
 	}
 
+	public function useCache($useCache = true) {
+		if ($useCache) {
+			if ($this->stmt === null) {
+				throw new LogicException(
+					"Cache must be enabled prior to first iteration"
+				);
+			}
+
+			$this->cache = [];
+		} else {
+			$this->cache = null;
+		}
+	}
+
 	/* ======================================================================== *
 	 * Iteration implementation.
 	 * ======================================================================== */
@@ -106,7 +126,9 @@ class QueryResult implements Iterator
 	}
 
 	public function rewind() {
-		reset($this->cache);
+		if (is_array($this->cache)) {
+			reset($this->cache);
+		}
 		$this->nextRow = $this->fetch();
 		$this->nextIdx = 0;
 	}
