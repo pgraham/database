@@ -12,38 +12,40 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  * =============================================================================
  */
-namespace zpt\db\test;
+namespace zpt\db\test\exception;
 
-require_once __DIR__ . '/test-common.php';
+require_once __DIR__ . '/../test-common.php';
 
 use PHPUnit_Framework_TestCase as TestCase;
 
-use zpt\db\DatabaseConnectionInfo;
+use zpt\db\exception\SqliteExceptionAdapter;
+use PDOException;
+use PDO;
 
 /**
- * Tests for the DatabaseConnectionInfo object.
+ * This class tests the SqliteExceptionAdapter.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class DatabaseConnectionInfoTest extends TestCase
+class SqliteExceptionAdapterTest extends TestCase
 {
 
-	public function testBasicConstruction() {
-		$connInfo = new DatabaseConnectionInfo([
-			'driver' => 'sqlite',
-			'schema' => ':memory:'
-		]);
+	private $db;
 
-		$this->assertEquals('sqlite', $connInfo->getDriver());
-		$this->assertEquals(':memory:', $connInfo->getSchema());
+	protected function setUp() {
+		$this->db = new PDO("sqlite::memory:");
+		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	}
 
-	public function testSqliteInMemoryDsn() {
-		$connInfo = new DatabaseConnectionInfo([
-			'driver' => 'sqlite',
-			'schema' => ':memory:'
-		]);
-
-		$this->assertEquals('sqlite::memory:', $connInfo->getDsn());
+	public function testExceptionAdapt() {
+		$adapter = new SqliteExceptionAdapter();
+		try {
+			$sql = "SELECT * FROM";
+			$this->db->exec($sql);
+		} catch (PDOException $e) {
+			$dbe = $adapter->adapt($e, $sql);
+			$this->assertEquals("SELECT * FROM", $dbe->getSql());
+		}
 	}
+
 }

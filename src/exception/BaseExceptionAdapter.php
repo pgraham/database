@@ -14,30 +14,11 @@
  */
 namespace zpt\db\exception;
 
-use \PDOException;
-
 /**
- * Database exception adapter which parses Mysql exception messages in order to
- * produce DatabaseException instances.
+ * Base class for exception adapters.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class MysqlExceptionAdapter extends BaseExceptionAdapter
-	implements DatabaseExceptionAdapter
+abstract class BaseExceptionAdapter
 {
-
-	public function adapt(PDOException $e, $stmt = null, array $params = null) {
-		if ($e instanceof DatabaseException) {
-			return $e;
-		}
-
-		$dbe = new DatabaseException($e, $stmt, $params);
-
-		$code = $e->getCode();
-		switch ($code) {
-			// TODO
-		}
-
-		return $dbe;
-	}
 }

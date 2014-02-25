@@ -14,7 +14,7 @@
  */
 namespace zpt\db\exception;
 
-use \PDOException;
+use PDOException;
 
 /**
  * Database exception adapter which parses Pgsql exception messages in order to
@@ -22,20 +22,19 @@ use \PDOException;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class PgsqlExceptionAdapter implements DatabaseExceptionAdapter
+class PgsqlExceptionAdapter extends BaseExceptionAdapter
+	implements DatabaseExceptionAdapter
 {
 
-	public function adapt(PDOException $e) {
+	public function adapt(PDOException $e, $stmt = null, array $params = null) {
 		if ($e instanceof DatabaseException) {
 			return $e;
 		}
 
-		$msg = $e->getMessage();
-		$code = $e->getCode();
-		$dbe = new DatabaseException($msg, $code, $e);
+		$dbe = new DatabaseException($e, $stmt, $params);
 
-		$sCode = (string) $code;
-		switch ($sCode) {
+		$code = $e->getCode();
+		switch ($code) {
 			case '42P04':
 			$dbe->databaseAlreadyExists(true);
 			break;

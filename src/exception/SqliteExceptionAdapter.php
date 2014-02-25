@@ -22,17 +22,16 @@ use \PDOException;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class SqliteExceptionAdapter implements DatabaseExceptionAdapter
+class SqliteExceptionAdapter extends BaseExceptionAdapter
+	implements DatabaseExceptionAdapter
 {
 
-	public function adapt(PDOException $e) {
+	public function adapt(PDOException $e, $stmt = null, array $params = null) {
 		if ($e instanceof DatabaseException) {
 			return $e;
 		}
 
-		$msg = $e->getMessage();
-		$code = $e->getCode();
-		$dbe = new DatabaseException($msg, $code, $e);
+		$dbe = new DatabaseException($e, $stmt, $params);
 		return $dbe;
 	}
 }

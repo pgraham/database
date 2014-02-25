@@ -14,8 +14,8 @@
  */
 namespace zpt\db\exception;
 
-use \Exception;
-use \PDOException;
+use PDOException;
+use RuntimeException;
 
 /**
  * Exception class which parses PDOExceptions to make it easier to
@@ -23,29 +23,51 @@ use \PDOException;
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class DatabaseException extends PDOException
+class DatabaseException extends RuntimeException
 {
 
 	private $sqlCode;
+	private $sql;
+	private $params;
 
 	private $databaseAlreadyExists = false;
 	private $userAlreadyExists = false;
 	private $tableDoesNotExist = false;
 
 	public function __construct(
-		$msg = null,
-		$code = null,
-		Exception $previous = null
+		PDOException $cause,
+		$sql = null,
+		array $params = null
 	) {
+
+		$this->sqlCode = $cause->getCode();
+		$this->sql = $sql;
+		$this->params = $params;
+
+		if ($sql !== null) {
+			$msg = $this->buildMessage($sql, $params);
+		} else {
+			$msg = $cause->getMessage();
+		}
+
 		// the inherited code property is expected to be an integer but it is
-		// possible that a string will be passed to the constructor which will
-		// produce warnings if passed to the parent constructor.
-		$this->sqlCode = $code;
-		if (!is_numeric($code)) {
+		// possible that a string will be returned by the PDOException's getCode()
+		// method which will produce warnings if passed to the parent constructor.
+		if (is_numeric($this->sqlCode)) {
+			$code = $this->sqlCode;
+		} else {
 			$code = 0;
 		}
 
-		parent::__construct($msg, $code, $previous);
+		parent::__construct($msg, $code, $cause);
+	}
+
+	public function getSql() {
+		return $this->sql;
+	}
+
+	public function getSqlParameters() {
+		return $this->params;
 	}
 
 	public function getSqlCode() {
@@ -71,5 +93,17 @@ class DatabaseException extends PDOException
 			return $this->userAlreadyExists;
 		}
 		$this->userAlreadyExists = (bool) $userAlreadyExists;
+	}
+
+	protected function buildMessage($stmt, $params) {
+		$msg =  "Exception occured executing statement:\n  $stmt";
+
+		if ($params !== null) {
+			$msg .= "\n\n  Parameters: ";
+			$msg .= implode("\n    ", array_map(function ($k) use ($params) {
+				return "$k: {$params[$k]}";
+			}, array_keys($params)));
+		}
+		return $msg;
 	}
 }

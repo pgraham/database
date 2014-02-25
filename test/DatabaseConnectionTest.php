@@ -12,12 +12,14 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  * =============================================================================
  */
-namespace zpt\db;
+namespace zpt\db\test;
 
 require_once __DIR__ . '/test-common.php';
 
-use \PHPUnit_Framework_TestCase as TestCase;
-use \Exception;
+use PHPUnit_Framework_TestCase as TestCase;
+
+use zpt\db\exception\DatabaseException;
+use zpt\db\DatabaseConnection;
 
 /**
  * Testsfor the DatabaseConnection object.
@@ -47,10 +49,11 @@ class DatabaseConnectionTest extends TestCase
 
 	public function testExecException() {
 		try {
-			$this->conn->exec('CREAT TABLE syntax_error ( key text )');
+			$sql = 'CREAT TABLE syntax_error ( key text )';
+			$this->conn->exec($sql);
 			$this->fail('Expected SQL syntax error exception');
-		} catch (Exception $e) {
-			$this->assertInstanceOf('zpt\db\exception\DatabaseException', $e);
+		} catch (DatabaseException $e) {
+			$this->assertEquals($sql, $e->getSql());
 		}
 	}
 
@@ -85,8 +88,9 @@ class DatabaseConnectionTest extends TestCase
 	public function testPrepareException() {
 		try {
 			$stmt = $this->conn->prepare('SELECT * FROM not_a_table');
-		} catch (Exception $e) {
-			$this->assertInstanceOf('zpt\db\exception\DatabaseException', $e);
+			$this->fail('Expected exception for invalid prepared statement');
+		} catch (DatabaseException $e) {
+			$this->assertEquals('SELECT * FROM not_a_table', $e->getSql());
 		}
 	}
 }

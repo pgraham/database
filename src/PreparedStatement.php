@@ -66,18 +66,17 @@ class PreparedStatement
 	 *
 	 * @throws DatabaseException
 	 */
-	public function execute($inputParams = null) {
-		if ($inputParams === null) {
-			$inputParams = [];
+	public function execute($params = null) {
+		if ($params === null) {
+			$params = [];
 		}
 
 		try {
-			$this->stmt->execute($inputParams);
+			$this->stmt->execute($params);
 
 			return new QueryResult($this->stmt, $this->pdo);
-			return $this->stmt->execute($inputParams);
 		} catch (PDOException $e) {
-			throw $this->exAdapter->adapt($e);
+			throw $this->exAdapter->adapt($e, $this->stmt, $params);
 		}
 	}
 }

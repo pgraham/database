@@ -133,7 +133,7 @@ class DatabaseConnection
 		try {
 			return $this->pdo->exec($statement);
 		} catch (PDOException $e) {
-			throw $this->exceptionAdapter->adapt($e);
+			throw $this->exceptionAdapter->adapt($e, $statement);
 		}
 	}
 
@@ -154,7 +154,7 @@ class DatabaseConnection
 			$stmt = $this->pdo->prepare($statement, $driverOpts);
 			return new PreparedStatement($stmt, $this->pdo, $this->exceptionAdapter);
 		} catch (PDOException $e) {
-			throw $this->exceptionAdapter->adapt($e);
+			throw $this->exceptionAdapter->adapt($e, $statement);
 		}
 	}
 
@@ -169,7 +169,7 @@ class DatabaseConnection
 			$stmt = $this->pdo->query($statement);
 			return new QueryResult($stmt, $this->pdo);
 		} catch (PDOException $e) {
-			throw $this->exceptionAdapter->adapt($e);
+			throw $this->exceptionAdapter->adapt($e, $statement);
 		}
 	}
 

@@ -31,7 +31,13 @@ interface DatabaseExceptionAdapter
 	 * determining the cause of the PDOException.
 	 *
 	 * @param PDOException $e
+	 *   The exception caused by the statement.
+	 * @param string $stmt
+	 *   [Optional] The SQL statement that caused the error.
+	 * @param array $params
+	 *   [Optional] If the provided SQL statement is a prepare statement, the
+	 *   parameters that when combined with the statement caused the exception.
 	 * @return DatabaseException
 	 */
-	public function adapt(PDOException $e);
+	public function adapt(PDOException $e, $stmt = null, array $params = null);
 }

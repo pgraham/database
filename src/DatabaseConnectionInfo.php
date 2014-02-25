@@ -92,7 +92,7 @@ class DatabaseConnectionInfo
 		if ($this->driver === 'sqlite' && $this->schema === ':memory:') {
 			return 'sqlite::memory:';
 		}
-		
+
 		$opts = [];
 		$opts['host'] = $this->host;
 
