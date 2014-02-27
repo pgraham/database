@@ -40,6 +40,9 @@ class DatabaseConnection
 	/** Exception adapter. */
 	private $exceptionAdapter;
 
+	/** Query adapter for the underlying database engine. */
+	private $queryAdapter;
+
 	/**
 	 * Create a new connection with with the given options.
 	 *
@@ -69,6 +72,7 @@ class DatabaseConnection
 
 		$driver = $options->getDriver();
 		$this->exceptionAdapter = $adapterFactory->getExceptionAdapter($driver);
+		$this->queryAdapter = $adapterFactory->getQueryAdapter($driver);
 
 		try {
 			$dsn = $options->getDsn();
@@ -102,6 +106,15 @@ class DatabaseConnection
 			$this->adminAdapter = $this->adapterFactory->createAdminAdapter($this);
 		}
 		return $this->adminAdapter;
+	}
+
+	/**
+	 * Retrieve an {@link zpt\db\adapter\QueryAdapter} for the current connection.
+	 *
+	 * @return zpt\db\adapter\QueryAdapter
+	 */
+	public function getQueryAdapter() {
+		return $this->queryAdapter;
 	}
 
 	/**

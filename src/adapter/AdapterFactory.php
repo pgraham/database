@@ -27,8 +27,8 @@ use zpt\db\DatabaseConnection;
 class AdapterFactory
 {
 
-	private $adminAdapters = [];
 	private $exceptionAdapters = [];
+	private $queryAdapters = [];
 
 	/**
 	 * Get a {@link DatabaseExceptionAdapter} instance for the specified driver.
@@ -44,6 +44,17 @@ class AdapterFactory
 				$driver);
 		}
 		return $this->exceptionAdapters[$driver];
+	}
+
+	/**
+	 * Get a {@link QueryAdapter} instance for the specified driver. Instance may 
+	 * be cached/shared.
+	 */
+	public function getQueryAdapter($driver) {
+		if (!isset($this->queryAdapters[$driver])) {
+			$this->queryAdapters[$driver] = $this->createQueryAdapter($driver);
+		}
+		return $this->queryAdapters[$driver];
 	}
 
 	/**
@@ -89,6 +100,30 @@ class AdapterFactory
 
 			case 'sqlite':
 			return new SqliteExceptionAdapter();
+
+			default:
+			throw new InvalidArgumentException("Unsupported driver: $driver");
+		}
+	}
+
+	/**
+	 * Create a {@link QueryAdapter} instance for the specified driver. Will 
+	 * always be a new, unshared instance.
+	 *
+	 * @param string $driver
+	 *   The database engine for which to retrieve and adapter.
+	 * @return QueryAdapter
+	 */
+	public function createQueryAdapter($driver) {
+		switch ($driver) {
+			case 'mysql':
+			return new MysqlQueryAdapter();
+
+			case 'pgsql':
+			return new PgsqlQueryAdapter();
+
+			case 'sqlite':
+			return new SqliteQueryAdapter();
 
 			default:
 			throw new InvalidArgumentException("Unsupported driver: $driver");
