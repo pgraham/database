@@ -31,8 +31,11 @@ class DatabaseConnection
 	/** Underlying PDO connection. */
 	private $pdo;
 
+	/** Database engine adapter factory */
+	private $adapterFactory;
+
 	/** Database driver adapter. */
-	private $adapter;
+	private $adminAdapter;
 
 	/** Exception adapter. */
 	private $exceptionAdapter;
@@ -62,6 +65,7 @@ class DatabaseConnection
 		if ($adapterFactory === null) {
 			$adapterFactory = new AdapterFactory();
 		}
+		$this->adapterFactory = $adapterFactory;
 
 		$driver = $options->getDriver();
 		$this->exceptionAdapter = $adapterFactory->getExceptionAdapter($driver);
@@ -83,6 +87,21 @@ class DatabaseConnection
 		}
 
 		$this->options = $options;
+	}
+
+	/**
+	 * Retrieve an {@link zpt\db\adapter\SqlAdminAdapter} for the current
+	 * connection. This will only be useful if the user associated with the
+	 * connection has sufficient priviledges to perform administrative SQL
+	 * statements.
+	 *
+	 * @return zpt\db\adapter\SqlAdminAdapter
+	 */
+	public function getAdminAdapter() {
+		if ($this->adminAdapter === null) {
+			$this->adminAdapter = $this->adapterFactory->createAdminAdapter($this);
+		}
+		return $this->adminAdapter;
 	}
 
 	/**

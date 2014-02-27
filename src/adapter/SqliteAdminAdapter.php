@@ -12,18 +12,17 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  * =============================================================================
  */
-namespace zpt\util\db;
+namespace zpt\db\adapter;
 
-use \zpt\util\StringUtils;
-use \PDOException;
-use \PDO;
+use zpt\db\DatabaseConnection;
+use zpt\util\StringUtils;
 
 /**
  * SQL Adapter for PostgreSQL administrative commands.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class PgsqlAdapter implements SqlAdminAdapter {
+class SqliteAdminAdapter implements SqlAdminAdapter {
 
 	const CREATE_DB_STMT = 'CREATE DATABASE {name} ENCODING {charSet}';
 	const CREATE_USER_STMT = "CREATE ROLE {username} WITH LOGIN PASSWORD '{password}'";
@@ -36,60 +35,33 @@ class PgsqlAdapter implements SqlAdminAdapter {
 	const GRANT_CONNECT_STMT = 'GRANT CONNECT ON DATABASE {database} TO {username}';
 	const GRANT_PERMS_STMT = 'GRANT {perms} ON ALL TABLES IN SCHEMA public TO {username}';
 
-	private $pdo;
+	private $db;
 
-	public function __construct(PDO $pdo) {
-		$this->pdo = $pdo;
+	public function __construct(DatabaseConnection $db) {
+		$this->db = $db;
 	}
 
 	public function createDatabase($name, $charSet) {
-		if ($charSet === null) {
-			$charSet = 'DEFAULT';
-		} else if (!is_int($charSet)) {
-			$charSet = "'$charSet'";
-		}
-
-		$stmt = StringUtils::format(self::CREATE_DB_STMT, [
-			'name' => $name,
-			'charSet' => $charSet
-		]);
-
-		$this->pdo->exec($stmt);
-
-		$stmt = StringUtils::format(self::REVOKE_PUBLIC_CONNECT_STMT, [
-			'database' => $name
-		]);
-		$this->pdo->exec($stmt);
-
-		// Create a new connection that is connected to the new database and revoke
-		// all default privileges
-		$conn = $this->pdo->newConnection([ 'database' => $name ]);
-		$conn->exec(self::REVOKE_PUBLIC_PERMS_STMT);
+		// TODO Create a new database file and connect to it. What is the path?
+		throw new RuntimeException(
+			"Creating SQLite databases is not currently supported"
+		);
 	}
 
 	public function createUser($username, $passwd, $host = null) {
-		$stmt = StringUtils::format(self::CREATE_USER_STMT, [
-			'username' => $username,
-			'password' => $passwd
-		]);
-
-		$this->pdo->exec($stmt);
+		throw new RuntimeException("SQLite databases do not support users");
 	}
 
 	public function dropDatabase($name) {
-		$stmt = StringUtils::format(self::DROP_DB_STMT, [
-			'name' => $name
-		]);
-
-		$this->pdo->exec($stmt);
+		// TODO Delete the database file and reconnect to an in memory database. 
+		// What is the path?
+		throw new RuntimeException(
+			"Dropping SQLite databases is not currently supported"
+		);
 	}
 
 	public function dropUser($username, $host = null) {
-		$stmt = StringUtils::format(self::DROP_USER_STMT, [
-			'username' => $name
-		]);
-
-		$this->pdo->exec($stmt);
+		throw new RuntimeException("SQLite databases do not support users");
 	}
 
 	public function grantUserPermissions(
@@ -98,19 +70,6 @@ class PgsqlAdapter implements SqlAdminAdapter {
 		$permissions,
 		$host = null
 	) {
-
-		$connectStmt = StringUtils::format(self::GRANT_CONNECT_STMT, [
-			'username' => $username,
-			'database' => $database
-		]);
-
-		$perms = (new PermissionParser)->parse($permissions);
-		$stmt = StringUtils::format(self::GRANT_PERMS_STMT, [
-			'perms' => $perms,
-			'username' => $username
-		]);
-
-		$conn = $this->pdo->newConnection([ 'database' => $database ]);
-		$conn->exec($stmt);
+		throw new RuntimeException("SQLite databases do not upport users");
 	}
 }

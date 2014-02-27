@@ -12,17 +12,17 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  * =============================================================================
  */
-namespace zpt\util\db;
+namespace zpt\db\adapter;
 
-use \zpt\util\StringUtils;
-use \zpt\db\DatabaseConnection;
+use zpt\util\StringUtils;
+use zpt\db\DatabaseConnection;
 
 /**
  * SQL Adapter for MySQL administrative commands.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class MysqlAdapter implements SqlAdminAdapter {
+class MysqlAdminAdapter implements SqlAdminAdapter {
 
 	const DEFAULT_USER_HOST = '%';
 

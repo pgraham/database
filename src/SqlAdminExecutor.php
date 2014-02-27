@@ -18,6 +18,9 @@ namespace zpt\db;
  * Class for executing database administration and DDL statements in an engine
  * agnostic way.
  *
+ * TODO This class is not functional but is kept because it's interface may be 
+ * useful in the future.
+ *
  * @author Philip Graham <philip@zeptech.ca>
  */
 class SqlAdminExecutor implements SqlAdminAdapter
@@ -31,20 +34,22 @@ class SqlAdminExecutor implements SqlAdminAdapter
 		$this->db = $db;
 
 		$driver = $db->getInfo()->getDriver();
+
+		// TODO Simply retrieve adapters from DatabaseConnection
 		$this->exceptionAdapter = $this->exceptionAdapterFactor
 			->getAdapter($driver);
 
 		switch ($driver) {
 			case 'mysql':
-			$this->adapter = new MysqlAdapter($db);
+			$this->adapter = new MysqlAdminAdapter($db);
 			break;
 
 			case 'pgsql':
-			$this->adapter = new PgsqlAdapter($db);
+			$this->adapter = new PgsqlAdminAdapter($db);
 			break;
 
 			case 'sqlite':
-			$this->adapter = new SqliteAdapter($db);
+			$this->adapter = new SqliteAdminAdapter($db);
 			break;
 
 			default:

@@ -14,6 +14,11 @@
  */
 namespace zpt\db\adapter;
 
+use zpt\db\exception\MysqlExceptionAdapter;
+use zpt\db\exception\PgsqlExceptionAdapter;
+use zpt\db\exception\SqliteExceptionAdapter;
+use zpt\db\DatabaseConnection;
+
 /**
  * Factory for DatabaseExceptionAdapter instances.
  *
@@ -22,6 +27,7 @@ namespace zpt\db\adapter;
 class AdapterFactory
 {
 
+	private $adminAdapters = [];
 	private $exceptionAdapters = [];
 
 	/**
@@ -39,6 +45,29 @@ class AdapterFactory
 		}
 		return $this->exceptionAdapters[$driver];
 	}
+
+	/**
+	 * Create a {@link SqlAdminAdapter} instance for the specified driver. Will
+	 * always be a new, unshared instance.
+	 *
+	 * @param string $driver
+	 *   The database engine for which to retrieve an adapter.
+	 * @return SqlAdminAdapter
+	 */
+	public function createAdminAdapter(DatabaseConnection $db) {
+		$driver = $db->getInfo()->getDriver();
+		switch ($driver) {
+			case 'mysql':
+			return new MysqlAdminAdapter($db);
+
+			case 'pgsql':
+			return new PgsqlAdminAdapter($db);
+
+			case 'sqlite':
+			return new SqliteAdminAdapter($db);
+
+			default:
+			throw new InvalidArgumentException("Unsupported driver: $driver");
 		}
 	}
 
