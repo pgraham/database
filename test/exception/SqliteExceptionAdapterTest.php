@@ -48,4 +48,16 @@ class SqliteExceptionAdapterTest extends TestCase
 		}
 	}
 
+	public function testTableDoesNotExist() {
+		$adapter = new SqliteExceptionAdapter();
+
+		try {
+			$sql = "SELECT * FROM not_a_table";
+			$this->db->prepare($sql);
+		} catch (PDOException $e) {
+			$dbe = $adapter->adapt($e, $sql);
+			$this->assertTrue($dbe->tableDoesNotExist());
+		}
+	}
+
 }

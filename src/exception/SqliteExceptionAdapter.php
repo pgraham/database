@@ -32,6 +32,13 @@ class SqliteExceptionAdapter extends BaseExceptionAdapter
 		}
 
 		$dbe = new DatabaseException($e, $stmt, $params);
+
+		// Check for table does not exist
+		$msg = $e->getMessage();
+		if (strpos($msg, 'no such table') !== false) {
+			$dbe->tableDoesNotExist(true);
+		}
+
 		return $dbe;
 	}
 }
