@@ -93,4 +93,5 @@ class DatabaseConnectionTest extends TestCase
 			$this->assertEquals('SELECT * FROM not_a_table', $e->getSql());
 		}
 	}
+
 }

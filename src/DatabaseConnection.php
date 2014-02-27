@@ -14,7 +14,7 @@
  */
 namespace zpt\db;
 
-use \zpt\db\exception\ExceptionAdapterFactory;
+use \zpt\db\adapter\AdapterFactory;
 use \InvalidArgumentException;
 use \PDOException;
 use \PDO;
@@ -43,15 +43,12 @@ class DatabaseConnection
 	 * @param array|DatabaseConnectionInfo $options
 	 *   Either a {@link DatabaseConnectionInfo} instance or an array of options
 	 *   to use to construct a DatabaseConnectionInfo instance.
-	 * @param ExceptionAdapterFactory $exceptionAdapterFactory
-	 *   ExceptionAdapterFactory to use to retrieve the DatabaseExceptionAdapter
-	 *   instance to use for the specified driver. If provided a cached adapter
-	 *   may be used.
+	 * @param AdapterFactory $exceptionAdapterFactory
+	 *   AdapterFactory to use to retrieve the DatabaseExceptionAdapter instance
+	 *   to use for the specified driver. If provided a cached adapter may be
+	 *   used.
 	 */
-	public function __construct(
-		$options,
-		ExceptionAdapterFactory $exceptionAdapterFactory = null
-	) {
+	public function __construct($options, AdapterFactory $adapterFactory = null) {
 		if (is_array($options)) {
 			$options = new DatabaseConnectionInfo($options);
 		}
@@ -62,13 +59,12 @@ class DatabaseConnection
 			);
 		}
 
-		if ($exceptionAdapterFactory === null) {
-			$exceptionAdapterFactory = new ExceptionAdapterFactory();
+		if ($adapterFactory === null) {
+			$adapterFactory = new AdapterFactory();
 		}
 
-		$this->exceptionAdapter = $exceptionAdapterFactory->getAdapter(
-			$options->getDriver()
-		);
+		$driver = $options->getDriver();
+		$this->exceptionAdapter = $adapterFactory->getExceptionAdapter($driver);
 
 		try {
 			$dsn = $options->getDsn();

@@ -12,31 +12,34 @@
  * @license http://www.opensource.org/licenses/bsd-license.php
  * =============================================================================
  */
-namespace zpt\db\exception;
+namespace zpt\db\adapter;
 
 /**
  * Factory for DatabaseExceptionAdapter instances.
  *
  * @author Philip Graham <philip@zeptech.ca>
  */
-class ExceptionAdapterFactory
+class AdapterFactory
 {
 
-	private $cache = [];
+	private $exceptionAdapters = [];
 
 	/**
 	 * Get a {@link DatabaseExceptionAdapter} instance for the specified driver.
 	 * Instance may be cached/shared.
 	 *
 	 * @param string $driver
-	 *   The database engive for which to retrieve an adapter.
+	 *   The database engine for which to retrieve an adapter.
 	 * @return DatabaseExceptionAdapter
 	 */
-	public function getAdapter($driver) {
-		if (!isset($this->cache[$driver])) {
-			$this->cache[$driver] = $this->createAdapter($driver);
+	public function getExceptionAdapter($driver) {
+		if (!isset($this->exceptionAdapters[$driver])) {
+			$this->exceptionAdapters[$driver] = $this->createExceptionAdapter(
+				$driver);
 		}
-		return $this->cache[$driver];
+		return $this->exceptionAdapters[$driver];
+	}
+		}
 	}
 
 	/**
@@ -47,7 +50,7 @@ class ExceptionAdapterFactory
 	 *   The database engine for which to retrieve an adapter.
 	 * @return DatabaseExceptionAdapter
 	 */
-	public function createAdapter($driver) {
+	public function createExceptionAdapter($driver) {
 		switch ($driver) {
 			case 'mysql':
 			return new MysqlExceptionAdapter();
