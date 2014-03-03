@@ -82,7 +82,7 @@ class QueryResult implements Iterator
 
 	public function fetchColumn($idx = 0) {
 		$row = $this->fetch();
-		return $row[0];
+		return $row[$idx];
 	}
 
 	public function getInsertId() {
