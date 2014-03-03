@@ -76,7 +76,7 @@ class DatabaseConnectionInfo
 		$this->pdoOpts = $opts['pdoOptions'];
 		$this->pdoAttrs = $opts['pdoAttributes'];
 
-		// If not explicitely set, use exception for error reporting.
+		// If not explicitely set, use exceptions for error reporting.
 		if (!isset($this->pdoAttrs[PDO::ATTR_ERRMODE])) {
 			$this->pdoAttrs[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
 		}
