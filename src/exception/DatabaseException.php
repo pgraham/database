@@ -15,6 +15,7 @@
 namespace zpt\db\exception;
 
 use PDOException;
+use PDOStatement;
 use RuntimeException;
 
 /**
@@ -96,7 +97,10 @@ class DatabaseException extends RuntimeException
 	}
 
 	protected function buildMessage($stmt, $params) {
-		$msg =  "Exception occured executing statement:\n  `$stmt`";
+		$msg = "Execution occured executing statement";
+		if (!($stmt instanceof PDOStatement)) {
+			$msg .= "\n  `$stmt`";
+		}
 
 		if ($params !== null) {
 			$msg .= "\n\n  Parameters: ";
