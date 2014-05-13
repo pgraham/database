@@ -24,17 +24,6 @@ use zpt\util\StringUtils;
  */
 class SqliteAdminAdapter implements SqlAdminAdapter {
 
-	const CREATE_DB_STMT = 'CREATE DATABASE {name} ENCODING {charSet}';
-	const CREATE_USER_STMT = "CREATE ROLE {username} WITH LOGIN PASSWORD '{password}'";
-	const DROP_DB_STMT = 'DROP DATABASE {name}';
-	const DROP_USER_STMT = 'DROP ROLE {name}';
-
-	const REVOKE_PUBLIC_CONNECT_STMT = 'REVOKE CONNECT ON DATABASE {database} FROM PUBLIC';
-	const REVOKE_PUBLIC_PERMS_STMT = 'REVOKE ALL ON ALL TABLES IN SCHEMA public FROM public';
-
-	const GRANT_CONNECT_STMT = 'GRANT CONNECT ON DATABASE {database} TO {username}';
-	const GRANT_PERMS_STMT = 'GRANT {perms} ON ALL TABLES IN SCHEMA public TO {username}';
-
 	private $db;
 
 	public function __construct(DatabaseConnection $db) {
