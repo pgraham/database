@@ -47,7 +47,7 @@ class AdapterFactory
 	}
 
 	/**
-	 * Get a {@link QueryAdapter} instance for the specified driver. Instance may 
+	 * Get a {@link QueryAdapter} instance for the specified driver. Instance may
 	 * be cached/shared.
 	 */
 	public function getQueryAdapter($driver) {
@@ -107,7 +107,7 @@ class AdapterFactory
 	}
 
 	/**
-	 * Create a {@link QueryAdapter} instance for the specified driver. Will 
+	 * Create a {@link QueryAdapter} instance for the specified driver. Will
 	 * always be a new, unshared instance.
 	 *
 	 * @param string $driver
