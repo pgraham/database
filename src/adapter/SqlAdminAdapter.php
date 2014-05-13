@@ -22,6 +22,17 @@ namespace zpt\db\adapter;
 interface SqlAdminAdapter {
 
 	/**
+	 * Copy a database. **If the target database already exists if will be dropped
+	 * and recreated before copying.**
+	 *
+	 * @param string $source
+	 *   The name of the source database for the copy operation.
+	 * @param string $target
+	 *   The name of the target database for the copy operation.
+	 */
+	public function copyDatabase($source, $target);
+
+	/**
 	 * Create a database with the given name and character set.
 	 *
 	 * @param string $name The name of the database

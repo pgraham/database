@@ -39,6 +39,25 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 		$this->conn = $conn;
 	}
 
+	public function copyDatabase($source, $target) {
+		$this->dropDatabase($target);
+		$this->createDatabase($target, null);
+
+		$user = escapeshellarg($this->db->getInfo()->getUsername());
+		$pass = escapeshellarg($this->db->getInfo()->getPassword());
+		$src = escapeshellarg($source);
+		$tgt = escapeshellarg($tgt);
+
+		$cmd = String('mysqldump -u{0} --password={1} {2}|'
+			. 'mysql -u{0} --password={1} {3}')->format($user, $pass, $src, $tgt);
+
+		$failure = false;
+		passthru($cmd, $failure);
+		if ($failure) {
+			throw new RuntimeException("Unable to copy database $source to $target");
+		}
+	}
+
 	public function createDatabase($name, $charSet) {
 		$stmt = StringUtils::format(self::CREATE_DB_STMT, [
 			'name' => $name,

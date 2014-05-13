@@ -42,6 +42,28 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 		$this->db = $db;
 	}
 
+	/**
+	 * Copy the specified source database to the target. If the target already
+	 * exists it will be dropped. Note that since pg_dump is used to copy the
+	 * database and pg_dump doesn't accept command line passwords, this will only
+	 * work if run as a user with appropriate permissions.
+	 */
+	public function copyDatabase($source, $target) {
+		$this->dropDatabase($target);
+		$this->createDatabase($target, null);
+
+		$src = escapeshellarg($source);
+		$tgt = escapeshellarg($tgt);
+
+		// Use pg_dump to create the copy
+		$cmd = String("pg_dump {0} | psql {1}")->format($src, $tgt);
+		$failure = false;
+		passthru($cmd, $failure);
+		if ($failure) {
+			throw new RuntimeException("Unable to copy database $source to $target");
+		}
+	}
+
 	public function createDatabase($name, $charSet) {
 		if ($charSet === null) {
 			$charSet = 'DEFAULT';

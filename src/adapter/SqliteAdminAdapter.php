@@ -30,6 +30,12 @@ class SqliteAdminAdapter implements SqlAdminAdapter {
 		$this->db = $db;
 	}
 
+	public function copyDatabase($source, $target) {
+		throw new RuntimeException(
+			"Copying SQLite databases is not currently supported"
+		);
+	}
+
 	public function createDatabase($name, $charSet) {
 		// TODO Create a new database file and connect to it. What is the path?
 		throw new RuntimeException(

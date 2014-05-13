@@ -40,4 +40,23 @@ class PgsqlAdminAdapterTest extends TestCase
 		$adapter = new PgsqlAdminAdapter($db);
 	}
 
+	public function testCopyAuthError() {
+		$this->markTestIncomplete();
+
+		$db = new DatabaseConnection([
+			'driver' => 'pgsql',
+			'username' => 'test_user',
+			'password' => '123abc'
+		]);
+
+		$adapter = new PgsqlAdminAdapter($db);
+
+		try {
+			$adapter->copyDatabase('postgresql', 'postgresql_backup');
+			$this->fail("Expected an error attempting to copy database postgresql");
+		} catch (RuntimeException $e) {
+			echo $e->getMessage();
+		}
+	}
+
 }
