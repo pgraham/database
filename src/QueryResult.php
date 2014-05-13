@@ -14,9 +14,10 @@
  */
 namespace zpt\db;
 
-use \Iterator;
-use \PDOStatement;
-use \PDO;
+use Iterator;
+use LogicException;
+use PDOStatement;
+use PDO;
 
 /**
  * This class encapsulates a result set from a query.
@@ -25,6 +26,8 @@ use \PDO;
  */
 class QueryResult implements Iterator
 {
+
+	const CACHE_NOT_ENABLED = 1;
 
 	private $stmt;
 	private $insertId;
@@ -64,7 +67,8 @@ class QueryResult implements Iterator
 			next($cache);
 		} else {
 			throw new LogicException(
-				"Results can only be iterated once unless cache is enabled."
+				"Results can only be iterated once unless cache is enabled.",
+				self::CACHE_NOT_ENABLED
 			);
 		}
 
@@ -73,11 +77,22 @@ class QueryResult implements Iterator
 
 	public function fetchAll() {
 		if ($this->stmt !== null) {
-			$this->cache = $this->stmt->fetchAll();
+			$all = $this->stmt->fetchAll();
+			if (is_array($this->cache)) {
+				$this->cache = $all;
+			}
 			$this->stmt = null;
+			return $all;
 		}
 
-		return $this->cache;
+		if (is_array($this->cache)) {
+			return $this->cache;
+		}
+
+		throw new LogicException(
+			"Results can only be iterated once unless cache is enabled.",
+			self::CACHE_NOT_ENABLED
+		);
 	}
 
 	public function fetchColumn($idx = 0) {
@@ -96,16 +111,22 @@ class QueryResult implements Iterator
 
 	public function useCache($useCache = true) {
 		if ($useCache) {
-			if ($this->stmt === null) {
-				throw new LogicException(
-					"Cache must be enabled prior to first iteration"
-				);
-			}
+			if (!is_array($this->cache)) {
+				if ($this->stmt === null) {
+					throw new LogicException(
+						"Cache must be enabled prior to first iteration",
+						self::CACHE_NOT_ENABLED
+					);
+				}
 
-			$this->cache = [];
+				$this->cache = [];
+			}
 		} else {
 			$this->cache = null;
 		}
+
+		// Allow chaining
+		return $this;
 	}
 
 	/* ======================================================================== *

@@ -18,6 +18,9 @@ require_once __DIR__ . '/test-common.php';
 
 use PHPUnit_Framework_TestCase as TestCase;
 
+use zpt\db\QueryResult;
+use LogicException;
+
 /**
  * Test the QueryResult class.
  *
@@ -26,16 +29,24 @@ use PHPUnit_Framework_TestCase as TestCase;
 class QueryResultTest extends TestCase
 {
 
-	public function testIteration() {
-		$db = new DatabaseConnection([
+	private $db;
+
+	protected function setUp() {
+		$this->db = new DatabaseConnection([
 			'driver' => 'sqlite',
 			'schema' => ':memory:'
 		]);
+	}
 
-		$db->exec('CREATE TABLE config ( key TEXT, val TEXT )');
-		$db->exec("INSERT INTO config VALUES ('k1', 'v1')");
+	protected function tearDown() {
+		$this->db = null;
+	}
 
-		$results = $db->query('SELECT * FROM config');
+	public function testIteration() {
+		$this->db->exec('CREATE TABLE config ( key TEXT, val TEXT )');
+		$this->db->exec("INSERT INTO config VALUES ('k1', 'v1')");
+
+		$results = $this->db->query('SELECT * FROM config');
 
 		$iter = 0;
 		foreach ($results as $idx => $row) {
@@ -45,6 +56,50 @@ class QueryResultTest extends TestCase
 			$iter++;
 		}
 		$this->assertEquals(1, $iter);
+	}
+
+	public function testFetchAllNoCache() {
+		$this->db->exec('CREATE TABLE config ( key TEXT, val TEXT )');
+		$this->db->exec("INSERT INTO config VALUES ('k1', 'v1')");
+
+		$qr = $this->db->query('SELECT * FROM config');
+
+		$all = $qr->fetchAll();
+		$this->assertCount(1, $all);
+
+		try {
+			$qr->fetch();
+			$this->fail(
+				"Expected exception for second iteration of non-cached query result"
+			);
+		} catch (LogicException $e) {
+			$this->assertEquals(QueryResult::CACHE_NOT_ENABLED, $e->getCode());
+		}
+	}
+
+	public function testFetchAllCache() {
+		$this->db->exec('CREATE TABLE config ( key TEXT, val TEXT )');
+		$this->db->exec("INSERT INTO config VALUES ('k1', 'v1')");
+
+		$qr = $this->db->query('SELECT * FROM config')->useCache();
+
+		$all1 = $qr->fetchAll();
+		$all2 = $qr->fetchAll();
+
+		$this->assertEquals($all1, $all2);
+	}
+
+	public function testMultipleUseCache() {
+		$this->db->exec('CREATE TABLE config ( key TEXT, val TEXT )');
+		$this->db->exec("INSERT INTO config VALUES ('k1', 'v1')");
+
+		$qr = $this->db->query('SELECT * FROM config')->useCache();
+
+		$all1 = $qr->fetchAll();
+		$qr->useCache();
+		$all2 = $qr->fetchAll();
+
+		$this->assertEquals($all1, $all2);
 	}
 
 }
