@@ -28,7 +28,7 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 
 	const CREATE_DB_STMT = 'CREATE DATABASE {name} CHARACTER SET {charSet}';
 	const CREATE_USER_STMT = "CREATE USER '{username}'@'{host}' IDENTIFIED BY '{password}'";
-	const DROP_DB_STMT = 'DROP DATABASE {name}';
+	const DROP_DB_STMT = 'DROP DATABASE IF EXISTS {name}';
 	const DROP_USER_STMT = "DROP USER '{username}'@'{host}'";
 
 	const GRANT_STMT = "GRANT {perms} ON {database}.* TO '{username}'@'{host}'";

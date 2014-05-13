@@ -27,7 +27,7 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 
 	const CREATE_DB_STMT = 'CREATE DATABASE {name} ENCODING {charSet}';
 	const CREATE_USER_STMT = "CREATE ROLE {username} WITH LOGIN PASSWORD '{password}'";
-	const DROP_DB_STMT = 'DROP DATABASE {name}';
+	const DROP_DB_STMT = 'DROP DATABASE IF EXISTS {name}';
 	const DROP_USER_STMT = 'DROP ROLE {name}';
 
 	const REVOKE_PUBLIC_CONNECT_STMT = 'REVOKE CONNECT ON DATABASE {database} FROM PUBLIC';
