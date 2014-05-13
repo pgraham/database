@@ -14,9 +14,9 @@
  */
 namespace zpt\db\adapter;
 
+use zpt\db\DatabaseConnection;
+use zpt\db\exception\DatabaseException;
 use zpt\util\StringUtils;
-use PDOException;
-use PDO;
 
 /**
  * SQL Adapter for PostgreSQL administrative commands.
@@ -36,10 +36,10 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 	const GRANT_CONNECT_STMT = 'GRANT CONNECT ON DATABASE {database} TO {username}';
 	const GRANT_PERMS_STMT = 'GRANT {perms} ON ALL TABLES IN SCHEMA public TO {username}';
 
-	private $pdo;
+	private $db;
 
-	public function __construct(PDO $pdo) {
-		$this->pdo = $pdo;
+	public function __construct(DatabaseConnection $db) {
+		$this->db = $db;
 	}
 
 	public function createDatabase($name, $charSet) {
@@ -54,16 +54,16 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 			'charSet' => $charSet
 		]);
 
-		$this->pdo->exec($stmt);
+		$this->db->exec($stmt);
 
 		$stmt = StringUtils::format(self::REVOKE_PUBLIC_CONNECT_STMT, [
 			'database' => $name
 		]);
-		$this->pdo->exec($stmt);
+		$this->db->exec($stmt);
 
 		// Create a new connection that is connected to the new database and revoke
 		// all default privileges
-		$conn = $this->pdo->newConnection([ 'database' => $name ]);
+		$conn = $this->db->newConnection([ 'database' => $name ]);
 		$conn->exec(self::REVOKE_PUBLIC_PERMS_STMT);
 	}
 
@@ -73,7 +73,7 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 			'password' => $passwd
 		]);
 
-		$this->pdo->exec($stmt);
+		$this->db->exec($stmt);
 	}
 
 	public function dropDatabase($name) {
@@ -81,7 +81,7 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 			'name' => $name
 		]);
 
-		$this->pdo->exec($stmt);
+		$this->db->exec($stmt);
 	}
 
 	public function dropUser($username, $host = null) {
@@ -89,7 +89,7 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 			'username' => $name
 		]);
 
-		$this->pdo->exec($stmt);
+		$this->db->exec($stmt);
 	}
 
 	public function grantUserPermissions(
@@ -110,7 +110,7 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 			'username' => $username
 		]);
 
-		$conn = $this->pdo->newConnection([ 'database' => $database ]);
+		$conn = $this->db->newConnection([ 'database' => $database ]);
 		$conn->exec($stmt);
 	}
 }
