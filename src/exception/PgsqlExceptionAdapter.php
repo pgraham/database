@@ -26,33 +26,4 @@ class PgsqlExceptionAdapter extends BaseExceptionAdapter
 	implements DatabaseExceptionAdapter
 {
 
-	public function adapt(PDOException $e, $stmt = null, array $params = null) {
-		if ($e instanceof DatabaseException) {
-			return $e;
-		}
-
-		$dbe = new DatabaseException($e, $stmt, $params);
-
-		$code = $e->getCode();
-		switch ($code) {
-			case '42501':
-			$dbe->isAuthorizationError(true);
-			break;
-
-			case '42710':
-			$dbe->userAlreadyExists(true);
-			break;
-
-			case '42P04':
-			$dbe->databaseAlreadyExists(true);
-			break;
-
-			case '42P01':
-			$dbe->tableDoesNotExist(true);
-			break;
-		}
-
-		return $dbe;
-	}
-
 }

@@ -25,19 +25,4 @@ use \PDOException;
 class MysqlExceptionAdapter extends BaseExceptionAdapter
 	implements DatabaseExceptionAdapter
 {
-
-	public function adapt(PDOException $e, $stmt = null, array $params = null) {
-		if ($e instanceof DatabaseException) {
-			return $e;
-		}
-
-		$dbe = new DatabaseException($e, $stmt, $params);
-
-		$code = $e->getCode();
-		switch ($code) {
-			// TODO
-		}
-
-		return $dbe;
-	}
 }
