@@ -36,7 +36,7 @@ class SqliteAdminAdapter implements SqlAdminAdapter {
 		);
 	}
 
-	public function createDatabase($name, $charSet) {
+	public function createDatabase($name, $charSet = null) {
 		// TODO Create a new database file and connect to it. What is the path?
 		throw new RuntimeException(
 			"Creating SQLite databases is not currently supported"

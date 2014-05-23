@@ -62,7 +62,7 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 	/**
 	 * Create a database with the give name. For now, character set is ignored.
 	 */
-	public function createDatabase($name, $charSet) {
+	public function createDatabase($name, $charSet = null) {
 		if ($charSet === null) {
 			$charSet = self::DEFAULT_CHARACTER_SET;
 		}

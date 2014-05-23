@@ -38,7 +38,7 @@ interface SqlAdminAdapter {
 	 * @param string $name The name of the database
 	 * @param string $charSet The character set for the new database
 	 */
-	public function createDatabase($name, $charSet);
+	public function createDatabase($name, $charSet = null);
 
 	/**
 	 * Create a database user with the given credentials.

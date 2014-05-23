@@ -64,7 +64,7 @@ class PgsqlAdminAdapter implements SqlAdminAdapter {
 		}
 	}
 
-	public function createDatabase($name, $charSet) {
+	public function createDatabase($name, $charSet = null) {
 		if ($charSet === null) {
 			$charSet = 'DEFAULT';
 		} else if (!is_int($charSet)) {

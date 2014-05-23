@@ -70,9 +70,11 @@ class MysqlAdminAdapterTest extends TestCase
 		}
 	}
 
-	public function testCopy() {
+	public function testDropCreateCopy() {
 		$db = $this->getPrivDb();
 		$adapter = new MysqlAdminAdapter($db);
+
+		$adapter->dropDatabase('phpunit_db');
 		$adapter->createDatabase('phpunit_db', null);
 		$adapter->copyDatabase('phpunit_db', 'phpunit_db_cp');
 	}
