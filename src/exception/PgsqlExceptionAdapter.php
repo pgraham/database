@@ -35,12 +35,16 @@ class PgsqlExceptionAdapter extends BaseExceptionAdapter
 
 		$code = $e->getCode();
 		switch ($code) {
-			case '42P04':
-			$dbe->databaseAlreadyExists(true);
+			case '42501':
+			$dbe->isAuthorizationError(true);
 			break;
 
 			case '42710':
 			$dbe->userAlreadyExists(true);
+			break;
+
+			case '42P04':
+			$dbe->databaseAlreadyExists(true);
 			break;
 
 			case '42P01':

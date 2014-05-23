@@ -31,6 +31,7 @@ class DatabaseException extends RuntimeException
 	private $sql;
 	private $params;
 
+	private $authError = false;
 	private $databaseAlreadyExists = false;
 	private $userAlreadyExists = false;
 	private $tableDoesNotExist = false;
@@ -82,6 +83,13 @@ class DatabaseException extends RuntimeException
 		$this->databaseAlreadyExists = (bool) $databaseAlreadyExists;
 	}
 
+	public function isAuthorizationError($authError = null) {
+		if ($authError === null) {
+			return $this->authError;
+		}
+		$this->authError = (bool) $authError;
+	}
+
 	public function tableDoesNotExist($tableDoesNotExist = null) {
 		if ($tableDoesNotExist === null) {
 			return $this->tableDoesNotExist;
@@ -97,7 +105,7 @@ class DatabaseException extends RuntimeException
 	}
 
 	protected function buildMessage($stmt, $params) {
-		$msg = "Execution occured executing statement";
+		$msg = "Exception occured executing statement";
 		if (!($stmt instanceof PDOStatement)) {
 			$msg .= "\n  `$stmt`";
 		}

@@ -14,6 +14,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 
 use zpt\db\DatabaseConnection;
 use zpt\db\adapter\PgsqlAdminAdapter;
+use zpt\db\exception\DatabaseException;
 
 /**
  * This class defines test cases for the PgsqlAdminAdapter class.
@@ -41,8 +42,6 @@ class PgsqlAdminAdapterTest extends TestCase
 	}
 
 	public function testCopyAuthError() {
-		$this->markTestIncomplete();
-
 		$db = new DatabaseConnection([
 			'driver' => 'pgsql',
 			'username' => 'test_user',
@@ -54,8 +53,9 @@ class PgsqlAdminAdapterTest extends TestCase
 		try {
 			$adapter->copyDatabase('postgresql', 'postgresql_backup');
 			$this->fail("Expected an error attempting to copy database postgresql");
-		} catch (RuntimeException $e) {
-			echo $e->getMessage();
+		} catch (DatabaseException $e) {
+			$this->assertTrue($e->isAuthorizationError());
+			$this->assertEquals('42501', $e->getSqlCode());
 		}
 	}
 
