@@ -14,6 +14,7 @@ use PHPUnit_Framework_TestCase as TestCase;
 
 use zpt\db\DatabaseConnection;
 use zpt\db\adapter\MysqlAdminAdapter;
+use zpt\db\exception\DatabaseException;
 
 /**
  * This class defines test cases for the MysqlAdminAdapter class.
@@ -38,6 +39,24 @@ class MysqlAdminAdapterTest extends TestCase
 		]);
 
 		$adapter = new MysqlAdminAdapter($db);
+	}
+
+	public function testCopyAuthError() {
+		$db = new DatabaseConnection([
+			'driver' => 'pgsql',
+			'username' => 'test_user',
+			'password' => '123abc'
+		]);
+
+		$adapter = new MysqlAdminAdapter($db);
+
+		try {
+			$adapter->copyDatabase('mysql', 'mysql_backup');
+			$this->fail("Expected an error attempting to copy database postgresql");
+		} catch (DatabaseException $e) {
+			$this->assertTrue($e->isAuthorizationError());
+			$this->assertEquals('42501', $e->getSqlCode());
+		}
 	}
 
 }

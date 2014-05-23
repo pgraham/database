@@ -24,9 +24,10 @@ use zpt\db\DatabaseConnection;
  */
 class MysqlAdminAdapter implements SqlAdminAdapter {
 
+	const DEFAULT_CHARACTER_SET = 'utf8';
 	const DEFAULT_USER_HOST = '%';
 
-	const CREATE_DB_STMT = 'CREATE DATABASE {name} CHARACTER SET {charSet}';
+	const CREATE_DB_STMT = "CREATE DATABASE {name}";// CHARACTER SET {charSet};";
 	const CREATE_USER_STMT = "CREATE USER '{username}'@'{host}' IDENTIFIED BY '{password}'";
 	const DROP_DB_STMT = 'DROP DATABASE IF EXISTS {name}';
 	const DROP_USER_STMT = "DROP USER '{username}'@'{host}'";
@@ -58,7 +59,14 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 		}
 	}
 
+	/**
+	 * Create a database with the give name. For now, character set is ignored.
+	 */
 	public function createDatabase($name, $charSet) {
+		if ($charSet === null) {
+			$charSet = self::DEFAULT_CHARACTER_SET;
+		}
+
 		$stmt = StringUtils::format(self::CREATE_DB_STMT, [
 			'name' => $name,
 			'charSet' => $charSet
