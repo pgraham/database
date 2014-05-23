@@ -24,39 +24,57 @@ use zpt\db\exception\DatabaseException;
 class MysqlAdminAdapterTest extends TestCase
 {
 
-	protected function setUp() {
+	private function getDb() {
 		if (!isset($GLOBALS['MYSQL_USER']) || !isset($GLOBALS['MYSQL_PASS'])) {
 			$this->markTestSkipped("Mysql connection information not available."
 				. " View the README for information on how to setup database tests.");
 		}
-	}
 
-	public function testConstruction() {
-		$db = new DatabaseConnection([
+		return new DatabaseConnection([
 			'driver' => 'mysql',
 			'username' => $GLOBALS['MYSQL_USER'],
 			'password' => $GLOBALS['MYSQL_PASS']
 		]);
+	}
 
+	private function getPrivDb() {
+		if (!isset($GLOBALS['MYSQL_PRIV_USER']) &&
+		    !isset($GLOBALS['MYSQL_PRIV_PASS']))
+		{
+			$this->markTestSkipped("Mysql connection information for priviledged "
+				. "user not available. View the README for information on how to setup "
+				. "database tests");
+		}
+
+		return new DatabaseConnection([
+			'driver' => 'mysql',
+			'username' => $GLOBALS['MYSQL_PRIV_USER'],
+			'password' => $GLOBALS['MYSQL_PRIV_PASS']
+		]);
+	}
+
+	public function testConstruction() {
+		$db = $this->getDb();
 		$adapter = new MysqlAdminAdapter($db);
 	}
 
 	public function testCopyAuthError() {
-		$db = new DatabaseConnection([
-			'driver' => 'pgsql',
-			'username' => 'test_user',
-			'password' => '123abc'
-		]);
-
+		$db = $this->getDb();
 		$adapter = new MysqlAdminAdapter($db);
 
 		try {
 			$adapter->copyDatabase('mysql', 'mysql_backup');
-			$this->fail("Expected an error attempting to copy database postgresql");
+			$this->fail("Expected an error attempting to copy database mysql");
 		} catch (DatabaseException $e) {
 			$this->assertTrue($e->isAuthorizationError());
-			$this->assertEquals('42501', $e->getSqlCode());
 		}
+	}
+
+	public function testCopy() {
+		$db = $this->getPrivDb();
+		$adapter = new MysqlAdminAdapter($db);
+		$adapter->createDatabase('phpunit_db', null);
+		$adapter->copyDatabase('phpunit_db', 'phpunit_db_cp');
 	}
 
 }

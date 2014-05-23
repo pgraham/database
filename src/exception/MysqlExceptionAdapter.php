@@ -25,4 +25,32 @@ use \PDOException;
 class MysqlExceptionAdapter extends BaseExceptionAdapter
 	implements DatabaseExceptionAdapter
 {
+
+	public function adapt(PDOException $e, $stmt = null, array $params = null) {
+		$dbe = parent::adapt($e, $stmt, $params);
+
+		$mysqlErr = $this->getMysqlErrorCode($e->getMessage());
+		switch ($mysqlErr) {
+			case '1044':
+			$dbe->isAuthorizationError(true);
+			break;
+		}
+
+		return $dbe;
+	}
+
+	private function getMysqlErrorCode($msg) {
+		$matches = [];
+		preg_match(
+			'/^SQLSTATE\[[A-Z0-9]{5}]:.+:\s*(\d+).+$/',
+			$msg,
+			$matches
+		);
+
+		if (isset($matches[1])) {
+			return $matches[1];
+		} else {
+			return '';
+		}
+	}
 }

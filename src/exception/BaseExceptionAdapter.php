@@ -26,7 +26,7 @@ abstract class BaseExceptionAdapter
 
 	/**
 	 * Standard implementation of adapt that detects ANSI standard SQL states.
-	 * Driver implementations should only need to override this if they report 
+	 * Driver implementations should only need to override this if they report
 	 * non-standard SQLSTATE codes for supported error types.
 	 */
 	public function adapt(PDOException $e, $stmt = null, array $params = null) {

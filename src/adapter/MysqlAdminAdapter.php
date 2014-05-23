@@ -27,17 +27,17 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 	const DEFAULT_CHARACTER_SET = 'utf8';
 	const DEFAULT_USER_HOST = '%';
 
-	const CREATE_DB_STMT = "CREATE DATABASE {name}";// CHARACTER SET {charSet};";
+	const CREATE_DB_STMT = "CREATE DATABASE {name} CHARACTER SET {charSet};";
 	const CREATE_USER_STMT = "CREATE USER '{username}'@'{host}' IDENTIFIED BY '{password}'";
 	const DROP_DB_STMT = 'DROP DATABASE IF EXISTS {name}';
 	const DROP_USER_STMT = "DROP USER '{username}'@'{host}'";
 
 	const GRANT_STMT = "GRANT {perms} ON {database}.* TO '{username}'@'{host}'";
 
-	private $conn;
+	private $db;
 
-	public function __construct(DatabaseConnection $conn) {
-		$this->conn = $conn;
+	public function __construct(DatabaseConnection $db) {
+		$this->db = $db;
 	}
 
 	public function copyDatabase($source, $target) {
@@ -47,7 +47,7 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 		$user = escapeshellarg($this->db->getInfo()->getUsername());
 		$pass = escapeshellarg($this->db->getInfo()->getPassword());
 		$src = escapeshellarg($source);
-		$tgt = escapeshellarg($tgt);
+		$tgt = escapeshellarg($target);
 
 		$cmd = String('mysqldump -u{0} --password={1} {2}|'
 			. 'mysql -u{0} --password={1} {3}')->format($user, $pass, $src, $tgt);
@@ -72,7 +72,7 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 			'charSet' => $charSet
 		]);
 
-		$this->conn->exec($stmt);
+		$this->db->exec($stmt);
 	}
 
 	public function createUser($username, $passwd, $host = null) {
@@ -86,7 +86,7 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 			'password' => $passwd
 		]);
 
-		$this->conn->exec($stmt);
+		$this->db->exec($stmt);
 	}
 
 	public function dropDatabase($name) {
@@ -94,7 +94,7 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 			'name' => $name
 		]);
 
-		$this->conn->exec($stmt);
+		$this->db->exec($stmt);
 	}
 
 	public function dropUser($username, $host = null) {
@@ -107,7 +107,7 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 			'host'     => $host
 		]);
 
-		$this->conn->exec($stmt);
+		$this->db->exec($stmt);
 	}
 
 	public function grantUserPermissions(
@@ -126,6 +126,6 @@ class MysqlAdminAdapter implements SqlAdminAdapter {
 			'host'     => $host
 		]);
 
-		$this->conn->exec($stmt);
+		$this->db->exec($stmt);
 	}
 }
