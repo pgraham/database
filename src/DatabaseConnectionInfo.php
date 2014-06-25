@@ -80,6 +80,14 @@ class DatabaseConnectionInfo
 		if (!isset($this->pdoAttrs[PDO::ATTR_ERRMODE])) {
 			$this->pdoAttrs[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
 		}
+
+		// If not explicitely set, use FETCH_ASSOC as default type
+		if (!isset($this->pdoAttrs[PDO::ATTR_DEFAULT_FETCH_MODE])) {
+			$this->pdoAttrs[PDO::ATTR_DEFAULT_FETCH_MODE] = PDO::FETCH_ASSOC;
+		}
+
+		// Set character set to UTF8 for mysql
+		$this->pdoAttrs[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES 'UTF8'";
 	}
 
 	/**
