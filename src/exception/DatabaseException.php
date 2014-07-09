@@ -104,11 +104,12 @@ class DatabaseException extends RuntimeException
 		$this->userAlreadyExists = (bool) $userAlreadyExists;
 	}
 
-	protected function buildMessage($stmt, $params) {
+	protected function buildMessage($sql, $params) {
 		$msg = "Exception occured executing statement";
-		if (!($stmt instanceof PDOStatement)) {
-			$msg .= "\n  `$stmt`";
+		if ($sql instanceof PDOStatement) {
+			$sql = $sql->queryString;
 		}
+		$msg .= "\n  `$sql`";
 
 		if ($params !== null) {
 			$msg .= "\n\n  Parameters: ";
