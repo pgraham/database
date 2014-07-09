@@ -83,7 +83,7 @@ class DatabaseConnectionInfo
 
 		// If not explicitely set, use FETCH_ASSOC as default type
 		if (!isset($this->pdoAttrs[PDO::ATTR_DEFAULT_FETCH_MODE])) {
-			$this->pdoAttrs[PDO::ATTR_DEFAULT_FETCH_MODE] = PDO::FETCH_ASSOC;
+			$this->pdoAttrs[PDO::ATTR_DEFAULT_FETCH_MODE] = PDO::FETCH_BOTH;
 		}
 
 		// Set character set to UTF8 for mysql
