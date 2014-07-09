@@ -97,7 +97,11 @@ class QueryResult implements Iterator
 
 	public function fetchColumn($idx = 0) {
 		$row = $this->fetch();
-		return $row[$idx];
+		if (isset($row[$idx])) {
+			return $row[$idx];
+		} else {
+			return null;
+		}
 	}
 
 	public function getInsertId() {
