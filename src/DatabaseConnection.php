@@ -150,6 +150,19 @@ class DatabaseConnection
 	}
 
 	/**
+	 * Create a new database connection to the given schema using the same
+	 * credentials and options as the current connection. The current connection
+	 * is not closed.
+	 *
+	 * @param string $schema
+	 */
+	public function connectTo($schema) {
+		$info = clone $this->getInfo();
+		$info->setSchema($schema);
+		return new DatabaseConnection($info);
+	}
+
+	/**
 	 * Executes the given SQL query and returns a QueryResult object containing
 	 * the results of the query.
 	 *
