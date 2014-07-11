@@ -29,6 +29,8 @@ class QueryResult implements Iterator
 
 	const CACHE_NOT_ENABLED = 1;
 
+	private $pdo;
+
 	private $stmt;
 	private $insertId;
 	private $rowCount;
@@ -39,6 +41,7 @@ class QueryResult implements Iterator
 	private $nextRow;
 
 	public function __construct(PDOStatement $stmt, PDO $pdo) {
+		$this->pdo = $pdo;
 		$this->stmt = $stmt;
 		$this->insertId = $pdo->lastInsertId(); // TODO Enable name to be passed
 		$this->rowCount = $stmt->rowCount();
@@ -104,8 +107,12 @@ class QueryResult implements Iterator
 		}
 	}
 
-	public function getInsertId() {
-		return $this->insertId;
+	public function getInsertId($name = null) {
+		if ($name === null) {
+			return $this->insertId;
+		} else {
+			return $this->pdo->lastInsertId($name);
+		}
 	}
 
 	public function getRowCount() {
