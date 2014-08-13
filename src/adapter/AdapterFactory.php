@@ -18,6 +18,7 @@ use zpt\db\exception\MysqlExceptionAdapter;
 use zpt\db\exception\PgsqlExceptionAdapter;
 use zpt\db\exception\SqliteExceptionAdapter;
 use zpt\db\DatabaseConnection;
+use InvalidArgumentException;
 
 /**
  * Factory for DatabaseExceptionAdapter instances.
