@@ -156,7 +156,7 @@ class DatabaseConnectionInfo
 		$this->pw = $password;
 	}
 
-	public function sethost($host) {
+	public function setHost($host) {
 		$this->host = $host;
 	}
 
