@@ -96,9 +96,9 @@ class DatabaseConnectionInfo
 	 * @return string Database connection DSN
 	 */
 	public function getDsn() {
-		// Handle sqlite in memory database
-		if ($this->driver === 'sqlite' && $this->schema === ':memory:') {
-			return 'sqlite::memory:';
+		// Handle sqlite
+		if ($this->driver === 'sqlite') {
+			return "sqlite:$this->schema";
 		}
 
 		$opts = [];
