@@ -43,6 +43,9 @@ class DatabaseConnection
 	/** Query adapter for the underlying database engine. */
 	private $queryAdapter;
 
+	/* Whether or not a transaction is in progress */
+	private $inTransaction = false;
+
 	/**
 	 * Create a new connection with with the given options.
 	 *
@@ -94,6 +97,36 @@ class DatabaseConnection
 	}
 
 	/**
+	 * Normalize to only a single transactions. In order to take advantange of
+	 * drivers that support nested transactions access the underlying PDO object
+	 * directly.
+	 *
+	 * @return boolean
+	 */
+	public function beginTransaction() {
+		if ($this->inTransaction) {
+			return false;
+		}
+
+		$this->inTransaction = $this->pdo->beginTransaction();
+		return $this->inTransaction;
+	}
+
+	/**
+	 * Passthrough for the commit() method.
+	 *
+	 * @return boolean
+	 */
+	public function commit() {
+		if (!$this->inTransaction) {
+			return false;
+		}
+
+		$this->inTransaction = false;
+		return $this->pdo->commit();
+	}
+
+	/**
 	 * Retrieve an {@link zpt\db\adapter\SqlAdminAdapter} for the current
 	 * connection. This will only be useful if the user associated with the
 	 * connection has sufficient priviledges to perform administrative SQL
@@ -133,20 +166,6 @@ class DatabaseConnection
 	 */
 	public function getInfo() {
 		return $this->options;
-	}
-
-	/**
-	 * @see PDO::beginTransaction()
-	 */
-	public function beginTransaction() {
-		return $this->pdo->beginTransaction();
-	}
-
-	/**
-	 * @see PDO::commit()
-	 */
-	public function commit() {
-		return $this->pdo->commit();
 	}
 
 	/**
@@ -215,9 +234,16 @@ class DatabaseConnection
 	}
 
 	/**
-	 * @see PDO::rollback()
+	 * Passthrough for the rollback() method.
+	 *
+	 * @return boolean
 	 */
 	public function rollback() {
+		if (!$this->inTransaction) {
+			return false;
+		}
+
+		$this->inTransaction = false;
 		return $this->pdo->rollback();
 	}
 }
