@@ -108,10 +108,13 @@ class QueryResult implements Iterator
 	}
 
 	public function getInsertId($name = null) {
-		if ($name === null) {
+		if ($this->insertId) {
 			return $this->insertId;
+		} else if ($name !== null) {
+			$insertId = $this->pdo->lastInsertId($name);
+			return $insertId;
 		} else {
-			return $this->pdo->lastInsertId($name);
+			return null;
 		}
 	}
 
