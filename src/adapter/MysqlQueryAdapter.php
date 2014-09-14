@@ -15,7 +15,7 @@
 namespace zpt\db\adapter;
 
 /**
- * {@link QueryAdapter} implementation for Mysql database engine using out of 
+ * {@link QueryAdapter} implementation for Mysql database engine using out of
  * the box configuration.
  *
  * @author Philip Graham <philip@zeptech.ca>
@@ -24,7 +24,27 @@ class MysqlQueryAdapter implements QueryAdapter
 {
 
 	public function escapeField($fieldName) {
-		return "`$fieldName	`";
+		if ($fieldName === '*') {
+			return $fieldName;
+		}
+
+		if (strpos($fieldName, '.') === false &&
+				strpos($fieldName, ' ') === false)
+		{
+			return '`' . str_replace('`', '``', $fieldName) . '`';
+		}
+
+		$toEscape = explode(' ', $fieldName);
+		$escaped = array();
+		foreach ($toEscape AS $f) {
+			$parts = explode('.', $f);
+			$escapedField = array();
+			foreach ($parts AS $part) {
+				$escapedField[] = self::escapeFieldName($part);
+			}
+			$escaped[] = implode('.', $escapedField);
+		}
+		return implode(' ', $escaped);
 	}
 
 }
