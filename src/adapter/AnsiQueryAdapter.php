@@ -26,7 +26,25 @@ abstract class AnsiQueryAdapter implements QueryAdapter
 {
 
 	public function escapeField($fieldName) {
-		return "\"$fieldName\"";
+		$fields = explode(' ', $fieldName);
+		$escaped = [];
+		foreach ($fields as $idx => $field) {
+			if ($idx === 1 && strtolower($field) === 'as' && count($fields) === 3) {
+				$escaped[] = $field;
+			} else {
+				$qualificationParts = explode('.', $field);
+				$qualification = [];
+				foreach ($qualificationParts as $part) {
+					if ($part === '*') {
+						$qualification[] = '*';
+					} else {
+						$qualification[] = '"' . str_replace('"', '""', $part) . '"';
+					}
+				}
+				$escaped[] = implode('.', $qualification);
+			}
+		}
+		return implode(' ', $escaped);
 	}
 
 }

@@ -40,7 +40,7 @@ class MysqlQueryAdapter implements QueryAdapter
 			$parts = explode('.', $f);
 			$escapedField = array();
 			foreach ($parts AS $part) {
-				$escapedField[] = self::escapeFieldName($part);
+				$escapedField[] = $this->escapeField($part);
 			}
 			$escaped[] = implode('.', $escapedField);
 		}
